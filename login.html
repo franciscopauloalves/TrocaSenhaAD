@@ -17,6 +17,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.1/js/bootstrap.min.js"
         integrity="sha512-ewfXo9Gq53e1q1+WDTjaHAGZ8UvCWq0eXONhwDuIoaH8xz2r96uoAYaQCm1oQhnBfRXrvJztNXFsTloJfgbL5Q=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <style>
         .code-input {
@@ -29,7 +34,33 @@
 </head>
 
 <body>
-    <form onsubmit="return validarEmail()">
+<!-- Modal -->
+<div class="modal fade" id="meuModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Um código de acesso foi enviado para o e-mail informado.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="validacaoFormulario">
+                    <div class="form-group">
+                        <label for="codigoValidacao">Digite o código de 6 dígitos:</label>
+                        <input type="text" class="form-control" id="codigoValidacao" maxlength="6">
+                    </div>
+                    <div id="contador"></div>
+                    <!-- <button type="submit" class="btn btn-primary">Submeter</button> -->
+                    <button type="button" class="btn btn-success" id="submeterCodigo">Entrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <form id="form-valida-usuario"> <!-- onsubmit="return validarEmail()" -->
         <section>
             <div class="menu">
                 <div class="container row w-50 m-auto pt-5 text-center" >
@@ -41,8 +72,8 @@
                     <div class="row">
                         <div class="col">
                             <div class="form-floating mb-3">
-                                <input type="text" class="form-control" id="UserName" placeholder="Usuário" value=""
-                                    required title="Digite seu email para login">
+                                <input type="text" class="form-control" id="UserName" placeholder="Usuário" value="" required title="Digite seu email para login">
+                                <span id="error-message" style="color: red;"></span>
                                 <label for="UserName">Digite seu email para validação de usuário</label>
                             </div>
                         </div>
@@ -50,21 +81,7 @@
 
                     <div class="row">
                         <div class="col">
-                            <button type="submit" class="btn btn-primary w-100 p-2" data-bs-toggle="modal"
-                                data-bs-target="#myModal">Submeter</button>
-                        </div>
-                    </div>
-                    <div id="codeContainer" class="mt-3 text-center" style="display: none;">
-                        <p>Digite o código enviado para o seu email:</p>
-                        <div id="codeInputs">
-                            <!-- Inputs para o código serão adicionados aqui -->
-                        </div>
-                        <p id="timer" class="text-danger"></p>
-                        <div class="row mt-3">
-                            <div class="col">
-                                <button type="button" class="btn btn-success w-100 p-2"
-                                    onclick="validarCodigo()">Entrar</button>
-                            </div>
+                            <button type="button" class="btn btn-primary w-100 p-2" id="avaliarButton">Submeter</button>
                         </div>
                     </div>
                     <div class="container row w-50 m-auto pt-5">
@@ -72,30 +89,113 @@
                     </div>
                 </div>
         </section>
-
-        <!-- Modal - Aviso de envio de email-->
-        <section>
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h4 class="modal-title" id="myModalLabel">Aviso de envio de e-mail</h4>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <h6>
-                                Enviamos um código para o e-amil informado. Digite-o nos campos de validação!
-                            </h6>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </form>
-    <script src="script_validacao_email.js"></script>
-</body>
 
+    <script src="script_validacao_email.js"></script>
+   
+
+    <script>
+    var codigoGerado;
+
+    document.getElementById("avaliarButton").addEventListener("click", avaliar);
+
+    function avaliar() {
+        var emailInput = document.getElementById("UserName");
+        var email = emailInput.value;
+        var dominiosPermitidos = ["@ipt.br", "@fipt.org.br"];
+        var errorMessage = document.getElementById("error-message");
+        var emailValido = false;
+
+        // Limpar mensagens de erro anteriores
+        errorMessage.textContent = '';
+
+        // Verificar se o campo de e-mail está vazio
+        if (email === "") {
+            alert('O campo e-mail é obrigatório!');
+            emailInput.focus();
+            return;
+        }
+
+        // Verificar se o e-mail pertence aos domínios permitidos
+        for (var i = 0; i < dominiosPermitidos.length; i++) {
+            if (email.endsWith(dominiosPermitidos[i])) {
+                emailValido = true;
+                break;
+            }
+        }
+
+        // Mostrar mensagem de erro se o e-mail não for válido
+        if (!emailValido) {
+            alert('Digite um e-mail válido. Domínio não permitido!');
+            emailInput.value = '';
+            emailInput.focus();
+            return;
+        }
+        // salvar objeto no email no localStorage
+        var loginUsuario = email.split('@')[0];
+        localStorage.setItem('loginUsuario', loginUsuario);
+
+
+        // Se o e-mail for válido, adicionar a classe do Bootstrap para exibir o modal e iniciar o contador
+        $('#meuModal').modal('show');
+        iniciarContador();
+        enviarCodigoParaEmail(email);
+    }
+
+    document.getElementById("submeterCodigo").addEventListener("click", function() {
+        var codigoDigitado = document.getElementById("codigoValidacao").value;
+        if (codigoDigitado === codigoGerado) {
+            // alert('Bem vindo, acesso liberado!');
+            // Fechar o modal
+            $('#meuModal').modal('hide');
+            // Redirecionar para index.html
+            window.location.href = 'index.html';
+        } else {
+            alert('O código não confere!');
+        }
+    });
+
+    function iniciarContador() {
+        var contador = document.getElementById("contador");
+        var tempoRestante = 120; // 60 segundos
+
+        var intervalo = setInterval(function() {
+            if (tempoRestante <= 0) {
+                clearInterval(intervalo);
+                contador.textContent = "Tempo esgotado!";
+            } else {
+                contador.textContent = "Tempo restante: " + tempoRestante + " segundos";
+                tempoRestante--;
+            }
+        }, 1000);
+    }
+
+    function enviarCodigoParaEmail(email) {
+        // Gerar um código de validação de 6 dígitos
+        codigoGerado = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log("Código enviado para o e-mail " + email + ": " + codigoGerado);
+        // Aqui você pode adicionar a lógica de envio de e-mail, como uma chamada de API
+    }
+
+
+    // function enviarCodigoParaEmail(email) {
+    //     // Gerar um código de validação de 6 dígitos
+    //     codigoGerado = Math.floor(100000 + Math.random() * 900000).toString();
+    //     console.log("Código enviado para o e-mail " + email + ": " + codigoGerado);
+
+    //     // Chamar a API para enviar o email
+    //     fetch('/send-email', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({ email: email, codigo: codigoGerado })
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log('Success:', data);
+    //     })
+
+    </script>
+</body>
 </html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <form id="meuFormulario">
+        <input type="text" id="UserName" name="UserName" placeholder="Digite seu e-mail">
+        <span id="error-message"></span>
+        <button type="button" id="avaliarButton">Avaliar</button>
+    </form>
+
+    <!-- Modal -->
+    <div class="modal fade" id="meuModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Verificação de E-mail</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="validacaoFormulario">
+                        <div class="form-group">
+                            <label for="codigoValidacao">Digite o código de 6 dígitos:</label>
+                            <input type="text" class="form-control" id="codigoValidacao" maxlength="6">
+                        </div>
+                        <div id="contador"></div>
+                        <button type="submit" class="btn btn-primary">Submeter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    var codigoGerado;
+
+    document.getElementById("avaliarButton").addEventListener("click", avaliar);
+
+    function avaliar() {
+        var emailInput = document.getElementById("UserName");
+        var email = emailInput.value;
+        var dominiosPermitidos = ["@ipt.br", "@fipt.org.br"];
+        var errorMessage = document.getElementById("error-message");
+        var emailValido = false;
+
+        // Limpar mensagens de erro anteriores
+        errorMessage.textContent = '';
+
+        // Verificar se o campo de e-mail está vazio
+        if (email === "") {
+            alert('O campo e-mail é obrigatório!');
+            emailInput.focus();
+            return;
+        }
+
+        // Verificar se o e-mail pertence aos domínios permitidos
+        for (var i = 0; i < dominiosPermitidos.length; i++) {
+            if (email.endsWith(dominiosPermitidos[i])) {
+                emailValido = true;
+                break;
+            }
+        }
+
+        // Mostrar mensagem de erro se o e-mail não for válido
+        if (!emailValido) {
+            alert('Digite um e-mail válido. Domínio não permitido!');
+            emailInput.focus();
+            return;
+        }
+
+        // Se o e-mail for válido, adicionar a classe do Bootstrap para exibir o modal e iniciar o contador
+        $('#meuModal').modal('show');
+        iniciarContador();
+        enviarCodigoParaEmail(email);
+    }
+
+    document.getElementById("validacaoFormulario").addEventListener("submit", function(event) {
+        event.preventDefault(); // Previne o envio do formulário
+
+        var codigoDigitado = document.getElementById("codigoValidacao").value;
+        if (codigoDigitado === codigoGerado) {
+            //alert("Bem vindo!);
+            // Aqui você pode proceder com a submissão do formulário ou qualquer outra ação necessária
+            window.location.href = 'index.html';
+        } else {
+            alert('O código não confere!');
+        }
+    });
+
+    function iniciarContador() {
+        var contador = document.getElementById("contador");
+        var tempoRestante = 120; // 60 segundos
+
+        var intervalo = setInterval(function() {
+            if (tempoRestante <= 0) {
+                clearInterval(intervalo);
+                contador.textContent = "Tempo esgotado!";
+            } else {
+                contador.textContent = "Tempo restante: " + tempoRestante + " segundos";
+                tempoRestante--;
+            }
+        }, 1000);
+    }
+
+    function enviarCodigoParaEmail(email) {
+        // Gerar um código de validação de 6 dígitos
+        codigoGerado = Math.floor(100000 + Math.random() * 900000).toString();
+        console.log("Código enviado para o e-mail " + email + ": " + codigoGerado);
+
+        // Chamar a API para enviar o email
+        fetch('/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: email, codigo: codigoGerado })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    </script>
+</body>
+</html>

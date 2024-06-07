@@ -2,14 +2,13 @@ var codigoCorreto = "123456";
 var tempoRestante;
 var intervalo;
 
-function validarEmail() {
+function submeterEmail() {
     var email = document.getElementById("UserName").value;
     var dominiosPermitidos = ["@ipt.br", "@fipt.org.br"];
     var emailValido = false;
 
     if (email === "") {
-        alert('Digite um email');
-        console.log(email)
+        alert('O campo e-mail é obrigatório!');
         return false; // Previne o envio do formulário
     }
 
@@ -21,27 +20,70 @@ function validarEmail() {
     }
 
     if (emailValido) {
-        // Extrair o nome do email (remover o domínio)
-        var nomeDoEmail = email.split('@')[0];
+            // Extrair o nome do email (remover o domínio)
+            var loginUsuario = email.split('@')[0];
+    
+            // salvar objeto no email no localStorage
+            //localStorage.setItem("loginUsuario", JSON.stringify({loginUsuario: loginUsuario}));
+            localStorage.setItem('loginUsuario', loginUsuario);
 
-        // Armazenar o nome do email no localStorage
-        localStorage.setItem('nomeDoEmail', nomeDoEmail);
+// // Salvando o valor no localStorage
+// document.getElementById('btn-submeter').addEventListener('click', function() {
+//     // Extrair o nome do email (remover o domínio)
+//     //var email = document.getElementById("UserName").value;
+//     let loginUsuario = email.split('@')[0];
+//     localStorage.setItem('loginUsuario', loginUsuario);
+// });
+
 
         // alert("Email válido. Um código foi enviado para o seu email.");
-        mostrarCamposCodigo();
-    } else {
-        alert("Não foi possível enviar email. Domínio não permitido.");
+            mostrarCamposCodigo();
+
+        } else {
+            alert("Não foi possível enviar e-mail. Domínio não permitido.");
+            return false; // Previne o envio do formulário
+        }
+
+    return false; // Previne o envio do formulário mesmo quando o email é válido
+}
+
+function validarEmail(event) {
+    var emailInput = document.getElementById("UserName");
+    var email = emailInput.value;
+    var dominiosPermitidos = ["@ipt.br", "@fipt.org.br"];
+    var errorMessage = document.getElementById("error-message");
+    var emailValido = false;
+
+    if (email === "") {
+        errorMessage.textContent = 'O campo e-mail é obrigatório!';
+        event.preventDefault();
+        emailInput.focus();
         return false; // Previne o envio do formulário
     }
 
-    return false; // Previne o envio do formulário mesmo quando o email é válido
+    for (var i = 0; i < dominiosPermitidos.length; i++) {
+        if (email.endsWith(dominiosPermitidos[i])) {
+            emailValido = true;
+            break;
+        }
+    }
+
+if(!emailValido){
+    errorMessage.textContent = 'Digite um e-mail válido. Domínio não permitido!';
+    emailInput.focus();
+    event.preventDefault();
+    return false;
+}
+
+adicionarAtributosAoBotao();
+return true;
+
 }
 
 
 function mostrarCamposCodigo() {
     alert("Email válido. Um código foi enviado para o seu email.");
 }
-
 
 function mostrarCamposCodigo() {
     var codeContainer = document.getElementById("codeContainer");
@@ -115,3 +157,13 @@ function validarCodigo() {
         inputs[0].focus();
     }
 }
+
+function adicionarAtributosAoBotao() {
+    // Seleciona o botão pelo ID
+    var botaoSubmit = document.getElementById("btn-submeter");
+    
+    // Adiciona os atributos ao botão
+    botaoSubmit.setAttribute('data-bs-toggle', 'modal');
+    botaoSubmit.setAttribute('data-bs-target', '#myModal');
+}
+

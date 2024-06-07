@@ -16,7 +16,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.1.1/js/bootstrap.min.js"
         integrity="sha512-ewfXo9Gq53e1q1+WDTjaHAGZ8UvCWq0eXONhwDuIoaH8xz2r96uoAYaQCm1oQhnBfRXrvJztNXFsTloJfgbL5Q=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    </script>
 
 </head>
 
@@ -48,7 +49,7 @@
                         <div class="col-md-12">
                             <div class="form-floating">
                                 <input type="text" class="form-control" id="usuario" placeholder="Usuário" value=""
-                                    required>
+                                    required disabled>
                                 <label for="usuario">Usuário</label>
                             </div>
                         </div>
@@ -150,11 +151,17 @@
         <div id="messageDiv" style="display:none"
             class="container d-flex align-items-center justify-content-center text-danger"></div>
         <div id="spinner"></div>
-
-
-
-
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let valorSalvo = localStorage.getItem('loginUsuario');
+            if (valorSalvo !== null) {
+                document.getElementById('usuario').value = valorSalvo;
+            }
+        });
+    </script>
+
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="script.js"></script>
     <script src="script_politica_senha.js"></script>
