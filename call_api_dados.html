@@ -13,6 +13,28 @@
 </head>
 
 <style>
+    @keyframes spinner {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .spinner:before {
+        content: '';
+        box-sizing: border-box;
+        position: absolute;
+        top: 50%;
+        left: 48%;
+        width: 100px;
+        height: 100px;
+        margin-top: -10px;
+        margin-left: -10px;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        border-top-color: #000;
+        animation: spinner .6s linear infinite;
+    }
+
     .custom-card {
         max-width: 80%;
         min-width: 70%;
@@ -23,10 +45,9 @@
         display: none;
     }
 
-    #btn-dados{
+    #btn-dados {
         display: none;
     }
-
 </style>
 
 <body>
@@ -50,8 +71,12 @@
                                     required>
                                 <label for="Password">Senha</label>
                             </div>
+                            <div class="form-check text-start h6 text-secondary">
+                                <input type="checkbox" class="form-check-input" id="mostrar-senha-atual">
+                                <label class="form-check-label" for="mostrar-senhas">Mostrar senha</label>
+                            </div>
                         </div>
-
+                        
                         <!-- Inserido a div dados para poder exibir somente se a senha estiver correta -->
                         <div id="dados" class="dados row g-lg-2">
                             <div class="col-md-12">
@@ -80,6 +105,13 @@
                                     <label for="Location">Prédio</label>
                                 </div>
                             </div>
+
+                            <div class="col-md-4">
+                                <div class="col-md-12 end-1">
+                                    <input type="button" id="btn-dados" class="btn btn-primary py-1 px-4" value="Enviar" />
+                                </div>
+                            </div>
+                            
                         </div>
                         <div class="row mb-0 mt-4">
                             <div class="col-md-12 end-1">
@@ -90,18 +122,15 @@
                                 <input type="button" id="btn-dados" class="btn btn-primary py-1 px-4" value="Enviar" />
                             </div>
                         </div>
-
+                        
+                        
                     </div>
 
                     <div class="row mb-0 mt-4">
-                        <!-- <div class="col-md-12 text-center">
-                            <input type="button" id="btn-dados" class="btn btn-primary py-1 px-4" value="Enviar" />
-                        </div> -->
-
-                        <br>
+                        
                         <div class="row mb-0 mt-4" style="display: block;">
                             <hr>
-                            <div class="col-md-12">
+                            <div class="col-md-12 pt-2">
                                 <a class="col-md-3 btn btn-secondary py-1 px-3" href="index.html">Tela Inicial</a>
                                 <a class="col-md-3 btn btn-danger py-1 px-3" href="login.html">Sair</a>
                             </div>
@@ -112,14 +141,16 @@
             </div>
         </div>
 
-        <div id="messageDiv" style="display:none"
-            class="container d-flex align-items-center justify-content-center text-danger"></div>
-        <div id="spinner"></div>
+        <div id="messageDivSuccess" role="alert" style="display:none" class=" alert alert-success align-items-center justify-content-center"></div>
+        <div id="messageDivDanger" role="alert" style="display:none" class=" alert alert-danger align-items-center justify-content-center"></div>
+        <div id="spinner">
 
+        </div>
     </section>
 
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let valorSalvo = localStorage.getItem('loginUsuario');
             if (valorSalvo !== null) {
                 document.getElementById('UserName').value = valorSalvo;
@@ -128,10 +159,10 @@
     </script>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="script.js"></script>
     <script src="script_exibir_dados.js"></script>
     <script src="script_validacao_email.js"></script>
-    
+    <script src="script_enviar_dados.js"></script>
+
 </body>
 
 </html>
